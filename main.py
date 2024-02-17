@@ -1,31 +1,61 @@
-import sys
+import scipy.constants
 import math
 
-e0 = sys.float_info.epsilon
-pi = math.pi
+"""
+TODO:
+    Add multi-charges
+    Graphic mode
 
+"""
+
+
+
+# Constants
+e0 = scipy.constants.epsilon_0
+pi = math.pi
+k = (1/(4 * pi * e0))
+
+# Trigonometric functions to degress
 def dSin (num):
     return math.sin(math.radians(num))
 
 def dCos (num):
     return math.cos(math.radians(num))
 
-print(- dSin(30))
+# Input data
 
-q1Charge = float(input("Ingrese la carga eléctrica del la primera esfera (en Coulombs)>>>"))
-q1type = input("Ingrese si la carga de la primera esfera es positiva o negativa (p/n) >>>")
-q1xDistance = float(input("Ingrese la distancia desde el eje x de la primera esfera (en metros) >>>"))
-q1Angle = float(input("Ingrese el ángulo que hay entre el eje x y la partícula desde la primera esfera (en grados) >>>"))
+print(" -ENERGY CALC-"
+      + "\n\n\nPARTÍCULA")
 
-q2Charge = float(input("Ingrese la carga eléctrica del la segunda esfera (en Coulombs)>>>"))
-q2type = input("Ingrese si la carga de la primera segunda es positiva o negativa (p/n) >>>")
-q2xDistance = float(input("Ingrese la distancia desde el eje x de la segunda esfera (en metros) >>>"))
-q2Angle = float(input("Ingrese el ángulo que hay entre el eje x y la partícula desde la segunda esfera (en grados) >>>"))
+particleY = float(input("Distancia en y de la partícula desde el origen (m) >>>"))
 
-particleY = float(input("Ingrese la distancia en y que tiene la partícula desde el origen (en metros) >>>"))
-particleX = float(input("Ingrese la distancia en x que tiene la partícula desde el origen (en metros) >>>"))
+print("\nESFERA #1")
+q1Charge = float(input("Carga (C) >>>"))
+q1type = input("Positiva o negativa (p/n) >>>")
+q1xDistance = float(input("Distancia en x respecto a la partícula (m) >>>"))
+q1Angle = float(input("Ángulo que forma el origen con la partícula (°) >>>"))
 
-totalEnergy = (1/(4 * pi * e0)) * (
-     ( (q1Charge / (particleY**2 + (particleX - q1xDistance)**2)) * (dCos(q1Angle) + (- dSin(q1Angle) if q1type == "n" else dSin(q1Angle)) ) ) +
-     ( (q2Charge / (particleY**2 + (particleX - q2xDistance)**2)) * (dCos(q1Angle) + (- dSin(q1Angle) if q1type == "n" else dSin(q1Angle)) ) )
+print("\nESFERA #2")
+q2Charge = float(input("Carga (C) >>>"))
+q2type = input("Positiva o negativa (p/n) >>>")
+q2xDistance = float(input("Distancia en x respecto a la partícula (m) >>>"))
+q2Angle = float(input("Ángulo que forma el origen con la partícula (°) >>>"))
+
+
+# Data to total energy for the particle
+
+q1UpRectangle = (q1Charge / (particleY**2 + q1xDistance**2))
+q1VectorParts = (dCos(q1Angle) + ((- dSin(q1Angle)) if q1type == "n" else dSin(q1Angle)) )
+
+q2UpRectangle = (q2Charge / (particleY**2 + q2xDistance**2))
+q2VectorParts = (dCos(q2Angle) + ((- dSin(q2Angle)) if q2type == "n" else dSin(q2Angle)) )
+
+totalEnergy = k * (
+     ( q1UpRectangle * q1VectorParts ) +
+     ( q2UpRectangle * q2VectorParts )
      )
+
+
+# Out total energy
+print("\n\n\nRESULTADOS:\nEnergía total que maneja la partícula: ", end="")
+print(totalEnergy)
