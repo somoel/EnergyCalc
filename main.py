@@ -3,8 +3,8 @@ import math
 
 """
 TODO:
-    Add multi-charges
     Graphic mode
+    Solve angle automatically
 
 """
 
@@ -24,36 +24,57 @@ def dCos (num):
 
 # Input data
 
-print(" -ENERGY CALC-"
-      + "\n\n\nPARTÍCULA")
+print(" -ENERGY CALC-\n\n")
+while True:
+    try:
+        chargeCount = int(input("Número de esferas con cargas a calcular (1-99) >>>"))
+        if (1 <= chargeCount <= 99):
+            break
+    except:
+        pass
 
+
+
+print("\nPARTÍCULA")
 particleY = float(input("Distancia en y de la partícula desde el origen (m) >>>"))
 
-print("\nESFERA #1")
-q1Charge = float(input("Carga (C) >>>"))
-q1type = input("Positiva o negativa (p/n) >>>")
-q1xDistance = float(input("Distancia en x respecto a la partícula (m) >>>"))
-q1Angle = float(input("Ángulo que forma el origen con la partícula (°) >>>"))
 
-print("\nESFERA #2")
-q2Charge = float(input("Carga (C) >>>"))
-q2type = input("Positiva o negativa (p/n) >>>")
-q2xDistance = float(input("Distancia en x respecto a la partícula (m) >>>"))
-q2Angle = float(input("Ángulo que forma el origen con la partícula (°) >>>"))
+class Charge:
+    global particleY
+    def __init__(self, charge: float, type: str, xDistance: float, angle: float) -> None:
+        self.charge = charge
+        self.type = type
+        self.xDistance = xDistance
+        self.angle = angle
+        self.qUpRectangle = self.charge / (particleY**2 + self.xDistance**2)
+        self.vectorParts = dCos(angle) + ((- dSin(angle)) if type == "n" else dSin(angle))
+
+
+charges = []
+for i in range(chargeCount):
+    print(f"\nESFERA #{i+1}")
+
+    charge = float(input("Carga (C) >>>"))
+    type = input("Positiva o negativa (p/n) >>>")
+    xDistance = float(input("Distancia en x respecto a la partícula (m) >>>"))
+    angle = float(input("Ángulo que forma el origen con la partícula (°) >>>"))
+
+    charges.append(Charge(
+        charge = charge,
+        type = type,
+        xDistance = xDistance,
+        angle = angle
+    ))
+   
 
 
 # Data to total energy for the particle
+    
+acumCharges = 0
+for i in range(chargeCount):
+    acumCharges += charges[i].qUpRectangle * charges[i].vectorParts
 
-q1UpRectangle = (q1Charge / (particleY**2 + q1xDistance**2))
-q1VectorParts = (dCos(q1Angle) + ((- dSin(q1Angle)) if q1type == "n" else dSin(q1Angle)) )
-
-q2UpRectangle = (q2Charge / (particleY**2 + q2xDistance**2))
-q2VectorParts = (dCos(q2Angle) + ((- dSin(q2Angle)) if q2type == "n" else dSin(q2Angle)) )
-
-totalEnergy = k * (
-     ( q1UpRectangle * q1VectorParts ) +
-     ( q2UpRectangle * q2VectorParts )
-     )
+totalEnergy = k * acumCharges
 
 
 # Out total energy
