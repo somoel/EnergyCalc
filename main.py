@@ -10,7 +10,6 @@ TODO:
         Separate files
         Check negative particles
         Scientific notation
-        Back Button
         Check entry data
         Clean and comment code
         Handle end of calculus
@@ -54,7 +53,7 @@ particleY = tk.StringVar()
 chargeFrames = []
 charges = []
 
-def confirmChargeCount(e):
+def confirmChargeCount(e = None):
     global chargeFrames, particleY, chargeCount
     welcomeFrame.pack_forget()
     particleY = int(particleY.get())
@@ -87,7 +86,9 @@ class ChargeFrame(tk.Frame):
         self.xDistanceStrVar = tk.StringVar()
         CEntry(self, self.xDistanceStrVar, enterFun=self.nextCharge).grid(row = 2, column = 1)
 
-        CButton(self, "Siguiente", self.nextCharge).grid(row = 3, rowspan= 2)
+        CButton(self, "Volver", self.back).grid(row = 3, column = 0)
+
+        CButton(self, "Siguiente", self.nextCharge).grid(row = 3, column = 1)
     
     def nextCharge(self, e = None):
         global chargeFrames, charges, totalEnergys
@@ -103,6 +104,14 @@ class ChargeFrame(tk.Frame):
         else:
             totalEnergy.set(calculateTotalEnergy(charges))
             resultFrame.pack()
+
+    def back(self):
+        global chargeFrames
+        self.pack_forget()
+        if (self.index - 1) < 0:
+            welcomeFrame.pack()
+        else:
+            chargeFrames[self.index - 1].pack()
 
         
 resultFrame = tk.Frame(welcomeScreen)
