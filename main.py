@@ -6,7 +6,6 @@ import numpy
 TODO:
     Graphic mode
     Check correct data input
-    Use charge negative values instead of p/n
 
 """
 
@@ -46,26 +45,23 @@ particleY = float(input("Distancia en y de la partícula desde el origen (m) >>>
 
 class Charge:
     global particleY
-    def __init__(self, charge: float, type: str, xDistance: float) -> None:
+    def __init__(self, charge: float, xDistance: float) -> None:
         self.charge = charge
-        self.type = type
         self.xDistance = xDistance
         self.angle = dArcTan(particleY / abs(xDistance))
-        self.qUpRectangle = self.charge / (particleY**2 + self.xDistance**2)
-        self.vectorParts = dCos(self.angle) + ((- dSin(self.angle)) if type == "n" else dSin(self.angle))
+        self.qUpRectangle = abs(self.charge) / (particleY**2 + self.xDistance**2)
+        self.vectorParts = dCos(self.angle) + ((- dSin(self.angle)) if charge < 0 else dSin(self.angle))
 
 
 charges = []
 for i in range(chargeCount):
     print(f"\nESFERA #{i+1}")
 
-    charge = float(input("Carga (C) >>>"))
-    type = input("Positiva o negativa (p/n) >>>")
+    charge = float(input("Carga (+/- C) >>>"))
     xDistance = float(input("Distancia en x respecto a la partícula (m) >>>"))
 
     charges.append(Charge(
         charge = charge,
-        type = type,
         xDistance = xDistance
     ))
    
