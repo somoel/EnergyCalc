@@ -1,14 +1,111 @@
 import scipy.constants
 import math
 import numpy
+from tkextrafont import Font
+import tkinter as tk
 
 """
 TODO:
     Graphic mode
-    Check correct data input
+        Separate files
+        Enter to next
+        Check negative particles
+        Scientific notation
+        Back Button
+        Check entry data
 
 """
 
+welcomeScreen = tk.Tk()
+welcomeScreen.title("Energy Calc")
+welcomeScreen.eval('tk::PlaceWindow . center')
+
+
+mediumFont = Font(file = 'fonts/HindSiliguri_Medium.ttf', family = "HindSiliguriMedium")
+
+class CLabel(tk.Label):
+    def __init__(self, parent, text, fontSize = 10):
+        tk.Label.__init__(self, parent, text = text, font = (mediumFont, fontSize))
+
+class CEntry(tk.Entry):
+    def __init__(self, parent, stringVar, fontSize = 10):
+        tk.Entry.__init__(self, parent, textvariable = stringVar, font = (mediumFont, fontSize))
+
+class CButton(tk.Button):
+    def __init__(self, parent, text, command, fontSize = 10):
+        tk.Button.__init__(self, parent, text = text, font = (mediumFont, fontSize), command = command)
+
+
+
+welcomeFrame = tk.Frame(welcomeScreen)
+welcomeFrame.pack()
+CLabel(welcomeFrame, "Bienvenido a Energy Calc", 15).grid()
+CLabel(welcomeFrame, "¿Con cuántas cargas piensas trabajar?").grid(row=1)
+chargeCount = tk.StringVar()
+CEntry(welcomeFrame, chargeCount).grid(row = 1, column = 1)
+
+CLabel(welcomeFrame, "Distancia en y de la partícula desde el orígen (m)").grid(row=2)
+particleY = tk.StringVar()
+CEntry(welcomeFrame, particleY).grid(row = 2, column = 1)
+
+
+chargeFrames = []
+charges = []
+
+def confirmChargeCount():
+    global chargeFrames, particleY, chargeCount
+    welcomeFrame.pack_forget()
+    particleY = int(particleY.get())
+    chargeCount = int(chargeCount.get())
+    for i in range(chargeCount):
+        chargeFrames.append(ChargeFrame(welcomeScreen, i))
+        charges.append(None)
+    chargeFrames[0].pack()
+    
+
+CButton(welcomeFrame, "Continuar", confirmChargeCount).grid(row = 3, columnspan = 2)
+
+
+class ChargeFrame(tk.Frame):
+    def __init__(self, parent, index):
+        tk.Frame.__init__(self, parent)
+        self.index = index
+
+        CLabel(self, f"Carga #{self.index + 1}", 15).grid()
+
+        CLabel(self, "Carga eléctrica (C)").grid(row = 1)
+        
+        self.chargeStrVar = tk.StringVar()
+        CEntry(self, self.chargeStrVar).grid(row = 1, column = 1)
+
+        CLabel(self, "Distancia en x con respecto a la partícula (m)").grid(row = 2)
+        
+        self.xDistanceStrVar = tk.StringVar()
+        CEntry(self, self.xDistanceStrVar).grid(row = 2, column = 1)
+
+        CButton(self, "Siguiente", lambda:self.nextCharge(self, self.index)).grid(row = 3, rowspan= 2)
+    
+    def nextCharge(self, e, actual_index):
+        global chargeFrames, charges, totalEnergy
+
+        charges[actual_index] = Charge(
+            charge = float(self.chargeStrVar.get()),
+            xDistance = float(self.xDistanceStrVar.get())
+        )
+
+        self.pack_forget()
+        if (actual_index + 1) < len(chargeFrames):
+            chargeFrames[actual_index + 1].pack()
+        else:
+            totalEnergy.set(calculateTotalEnergy(charges))
+            resultFrame.pack()
+
+        
+resultFrame = tk.Frame(welcomeScreen)
+CLabel(resultFrame, "Resultados", 15).grid()
+CLabel(resultFrame, "Campo electrico total:").grid(row=1)
+totalEnergy = tk.StringVar()
+tk.Label(resultFrame, textvariable=totalEnergy, font = (mediumFont, 13)).grid(row = 2)
 
 
 # Constants
@@ -26,26 +123,6 @@ def dCos (num):
 def dArcTan(num):
     return numpy.rad2deg(numpy.arctan(num))
 
-# Input data
-
-print(" -ENERGY CALC-\n\n")
-while True:
-    try:
-        chargeCount = int(input("Número de esferas con cargas a calcular (1-99) >>>"))
-        if (1 <= chargeCount <= 99):
-            break
-    except:
-        print("[ERROR] Datos incorrectos")
-
-
-
-print("\nPARTÍCULA")
-while True:
-    try:
-        particleY = float(input("Distancia en y de la partícula desde el origen (m) >>>"))
-        break
-    except:
-        print("[ERROR] Datos incorrectos")
 
 
 class Charge:
@@ -58,41 +135,19 @@ class Charge:
         self.vectorParts = dCos(self.angle) + ((- dSin(self.angle)) if charge < 0 else dSin(self.angle))
 
 
-charges = []
-for i in range(chargeCount):
-    print(f"\nESFERA #{i+1}")
-    while True:
-        try:
-            charge = float(input("Carga (+/- C) >>>"))
-            if (charge == 0):
-                print("[ADVERTENCIA] Si la partícula no tiene carga, pa que la pone, no sea cansón")
-            break
-        except:
-            print("[ERROR] Datos incorrectos")
 
-    while True:
-        try:
-            xDistance = float(input("Distancia en x respecto a la partícula (m) >>>"))
-            break
-        except:
-            print("[ERROR] Datos incorrectos")
+def calculateTotalEnergy(charges: list) -> float:
+    global k
 
-    charges.append(Charge(
-        charge = charge,
-        xDistance = xDistance
-    ))
-   
+    acumCharges = 0
+    for i in range(len(charges)):
+        acumCharges += charges[i].qUpRectangle * charges[i].vectorParts
 
-
-# Data to total energy for the particle
-    
-acumCharges = 0
-for i in range(chargeCount):
-    acumCharges += charges[i].qUpRectangle * charges[i].vectorParts
-
-totalEnergy = k * acumCharges
+    return k * acumCharges
 
 
 # Out total energy
 print("\n\n\nRESULTADOS:\nEnergía total que maneja la partícula: ", end="")
 print(totalEnergy)
+
+welcomeScreen.mainloop()
