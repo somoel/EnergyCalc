@@ -15,8 +15,6 @@ TODO:
         Clean and comment code
         Add keybinding to back button
         Enhance desing
-        Add focus on first element
-
 """
 
 welcomeScreen = tk.Tk()
@@ -31,10 +29,12 @@ class CLabel(tk.Label):
         tk.Label.__init__(self, parent, text = text, font = (mediumFont, fontSize))
 
 class CEntry(tk.Entry):
-    def __init__(self, parent, stringVar, fontSize = 10, enterFun = None):
+    def __init__(self, parent, stringVar, fontSize = 10, enterFun = None, startWithFocus = False):
         tk.Entry.__init__(self, parent, textvariable = stringVar, font = (mediumFont, fontSize))
         if enterFun != None:
             self.bind('<Return>', enterFun)
+        if startWithFocus:
+            self.focus()
 
 class CButton(tk.Button):
     def __init__(self, parent, text, command, fontSize = 10):
@@ -47,7 +47,7 @@ welcomeFrame.pack()
 CLabel(welcomeFrame, "Bienvenido a Energy Calc", 15).grid()
 CLabel(welcomeFrame, "¿Con cuántas cargas piensas trabajar?").grid(row=1)
 chargeCountStrVar = tk.StringVar()
-CEntry(welcomeFrame, chargeCountStrVar).grid(row = 1, column = 1)
+CEntry(welcomeFrame, chargeCountStrVar, startWithFocus = True).grid(row = 1, column = 1)
 
 CLabel(welcomeFrame, "Distancia en y de la partícula desde el orígen (m)").grid(row=2)
 particleYStrVar = tk.StringVar()
@@ -78,6 +78,7 @@ def confirmChargeCount(e = None):
 
     welcomeFrame.pack_forget()
     chargeFrames[0].pack()
+    chargeFrames[0].chargeEntry.focus()
     
     
 CEntry(welcomeFrame, particleYStrVar, enterFun = confirmChargeCount).grid(row = 2, column = 1)
@@ -96,7 +97,8 @@ class ChargeFrame(tk.Frame):
         CLabel(self, "Carga eléctrica (C)").grid(row = 1)
         
         self.chargeStrVar = tk.StringVar()
-        CEntry(self, self.chargeStrVar).grid(row = 1, column = 1)
+        self.chargeEntry = CEntry(self, self.chargeStrVar)
+        self.chargeEntry.grid(row = 1, column = 1)
 
         CLabel(self, "Distancia en x con respecto a la partícula (m)").grid(row = 2)
         
@@ -125,6 +127,7 @@ class ChargeFrame(tk.Frame):
         self.pack_forget()
         if (self.index + 1) < len(chargeFrames):
             chargeFrames[self.index + 1].pack()
+            chargeFrames[self.index + 1].chargeEntry.focus()
         else:
             totalEnergy.set(calculateTotalEnergy(charges))
             resultFrame.pack()
@@ -140,6 +143,7 @@ class ChargeFrame(tk.Frame):
             welcomeFrame.pack()
         else:
             chargeFrames[self.index - 1].pack()
+            chargeFrames[self.index - 1].chargeEntry.focus()
 
         
 resultFrame = tk.Frame(welcomeScreen)
