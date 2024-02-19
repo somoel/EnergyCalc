@@ -13,8 +13,8 @@ TODO:
         Scientific notation
         Clean and comment code
         Add keybinding to back button
-        Enhance button from last charge
         Enhance desing
+        Add focus on first element
 
 """
 
@@ -87,6 +87,7 @@ CButton(welcomeFrame, "Continuar", confirmChargeCount).grid(row = 3, columnspan 
 class ChargeFrame(tk.Frame):
     def __init__(self, parent, index):
         tk.Frame.__init__(self, parent)
+        global chargeCount
         self.index = index
 
         CLabel(self, f"Carga #{self.index + 1}", 15).grid()
@@ -103,7 +104,8 @@ class ChargeFrame(tk.Frame):
 
         CButton(self, "Volver", self.back).grid(row = 3, column = 0)
 
-        CButton(self, "Siguiente", self.nextCharge).grid(row = 3, column = 1)
+        nextText = "Finalizar" if self.index == chargeCount - 1 else "Siguiente"
+        CButton(self, nextText, self.nextCharge).grid(row = 3, column = 1)
     
     def nextCharge(self, e = None):
         global chargeFrames, charges, totalEnergys
