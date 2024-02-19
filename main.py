@@ -11,9 +11,11 @@ TODO:
         Separate files
         Check negative particles
         Scientific notation
-        Check entry data
         Clean and comment code
         Enhance desing
+        Add Java OOP
+        Add microcoulombs and centimeters
+        Show result info in scientific notation
 """
 
 welcomeScreen = tk.Tk()
@@ -28,8 +30,8 @@ class CLabel(tk.Label):
         tk.Label.__init__(self, parent, text = text, font = (mediumFont, fontSize))
 
 class CEntry(tk.Entry):
-    def __init__(self, parent, stringVar, fontSize = 10, enterFun = None, startWithFocus = False):
-        tk.Entry.__init__(self, parent, textvariable = stringVar, font = (mediumFont, fontSize))
+    def __init__(self, parent, stringVar, fontSize = 10, enterFun = None, startWithFocus = False, *args, **kwargs):
+        tk.Entry.__init__(self, parent, textvariable = stringVar, font = (mediumFont, fontSize), *args, **kwargs)
         if enterFun != None:
             self.bind('<Return>', enterFun)
         if startWithFocus:
@@ -47,9 +49,9 @@ welcomeFrame.pack()
 CLabel(welcomeFrame, "Bienvenido a Energy Calc", 15).grid()
 CLabel(welcomeFrame, "¿Con cuántas cargas piensas trabajar?").grid(row=1)
 chargeCountStrVar = tk.StringVar()
-CEntry(welcomeFrame, chargeCountStrVar, startWithFocus = True).grid(row = 1, column = 1)
+CEntry(welcomeFrame, chargeCountStrVar, startWithFocus = True, width = 3).grid(row = 1, column = 1)
 
-CLabel(welcomeFrame, "Distancia en y de la partícula desde el orígen (m)").grid(row=2)
+CLabel(welcomeFrame, "Distancia en y de la partícula desde el orígen").grid(row=2)
 particleYStrVar = tk.StringVar()
 
 
@@ -60,15 +62,21 @@ charges = []
 def confirmChargeCount(e = None):
     global chargeFrames, particleY, chargeCount
     try:
-        particleY = float(particleYStrVar.get())
-        if particleY < 0:
-            messagebox.showerror("Error", "Aún está en desarrollo las particulas debajo del eje x.")
-            return
         
         chargeCount = int(chargeCountStrVar.get())
         if chargeCount > 99 or chargeCount < 1:
             messagebox.showerror("Error", "Actualmente solo se permiten de 1 a 99 cargas dentro del campo.")
             return
+        
+        particleY = float(particleYStrVar.get())
+        if particleY < 0:
+            messagebox.showerror("Error", "Aún está en desarrollo las particulas debajo del eje x.")
+            return
+        
+        expParticleY = int(expPYStrVar.get())
+        
+        particleY = particleY * 10**expParticleY
+    
     except:
         messagebox.showerror("Error", "Un dato está mal ingresado. Verifique los datos e intente nuevamente.")
         return
@@ -81,7 +89,14 @@ def confirmChargeCount(e = None):
     chargeFrames[0].chargeEntry.focus()
     
     
-CEntry(welcomeFrame, particleYStrVar, enterFun = confirmChargeCount).grid(row = 2, column = 1)
+CEntry(welcomeFrame, particleYStrVar, enterFun = confirmChargeCount, width = 7).grid(row = 2, column = 1)
+
+CLabel(welcomeFrame, "x10^").grid(row = 2, column = 2)
+expPYStrVar = tk.StringVar()
+expPYStrVar.set("0")
+CEntry(welcomeFrame, expPYStrVar, enterFun = confirmChargeCount, width = 3).grid(row = 2, column = 3)
+CLabel(welcomeFrame, "m").grid(row = 2, column = 4)
+
 
 CButton(welcomeFrame, "Continuar", confirmChargeCount).grid(row = 3, columnspan = 2)
 
@@ -94,17 +109,30 @@ class ChargeFrame(tk.Frame):
 
         CLabel(self, f"Carga #{self.index + 1}", 15).grid()
 
-        CLabel(self, "Carga eléctrica (C)").grid(row = 1)
+        CLabel(self, "Carga eléctrica").grid(row = 1)
         
         self.chargeStrVar = tk.StringVar()
-        self.chargeEntry = CEntry(self, self.chargeStrVar)
+        self.chargeEntry = CEntry(self, self.chargeStrVar, width = 7)
         self.chargeEntry.grid(row = 1, column = 1)
         self.chargeEntry.bind('<Alt-Left>', self.back)
 
-        CLabel(self, "Distancia en x con respecto a la partícula (m)").grid(row = 2)
+        CLabel(self, "x10^").grid(row = 1, column = 2)
+        self.expChargeStrVar = tk.StringVar()
+        self.expChargeStrVar.set("0")
+        CEntry(self, self.expChargeStrVar, width = 3).grid(row = 1, column = 3)
+        CLabel(self, "C").grid(row = 1, column = 4)
+        
+
+        CLabel(self, "Distancia en x con respecto a la partícula").grid(row = 2)
         
         self.xDistanceStrVar = tk.StringVar()
-        CEntry(self, self.xDistanceStrVar, enterFun=self.nextCharge).grid(row = 2, column = 1)
+        CEntry(self, self.xDistanceStrVar, enterFun=self.nextCharge, width = 7).grid(row = 2, column = 1)
+
+        CLabel(self, "x10^").grid(row = 2, column = 2)
+        self.xDChargeStrVar = tk.StringVar()
+        self.xDChargeStrVar.set("0")
+        CEntry(self, self.xDChargeStrVar, width = 3, enterFun=self.nextCharge).grid(row = 2, column = 3)
+        CLabel(self, "m").grid(row = 2, column = 4)
 
         CButton(self, "Volver", self.back).grid(row = 3, column = 0)
 
@@ -119,6 +147,11 @@ class ChargeFrame(tk.Frame):
             if charge == 0:
                 messagebox.showwarning("Advertencia", "Si esa carga es 0, ¿para qué la pone? Cansón.")
             xDistance = float(self.xDistanceStrVar.get())
+            expCharge = int(self.expChargeStrVar.get())
+            expXDistance = int(self.xDChargeStrVar.get())
+
+            charge = charge * 10**expCharge
+            xDistance = xDistance  * 10**expXDistance
         except:
             messagebox.showerror("Error", "Un dato está mal ingresado. Verifique los datos e intente nuevamente")
             return
@@ -142,6 +175,7 @@ class ChargeFrame(tk.Frame):
             chargeFrames = []
             chargeCountStrVar.set('')
             particleYStrVar.set('')
+            expPYStrVar.set('0')
             welcomeFrame.pack()
         else:
             chargeFrames[self.index - 1].pack()
@@ -170,6 +204,7 @@ def resetApp(e = None):
     chargeFrames = []
     chargeCountStrVar.set('')
     particleYStrVar.set('')
+    expPYStrVar.set('0')
 
     resultFrame.pack_forget()
     welcomeFrame.pack()
