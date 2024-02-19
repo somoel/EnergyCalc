@@ -3,6 +3,7 @@ import math
 import numpy
 from tkextrafont import Font
 import tkinter as tk
+from tkinter import messagebox
 
 """
 TODO:
@@ -10,9 +11,9 @@ TODO:
         Separate files
         Check negative particles
         Scientific notation
-        Check entry data
         Clean and comment code
         Handle end of calculus
+        Add keybinding to back button
 
 """
 
@@ -43,28 +44,41 @@ welcomeFrame = tk.Frame(welcomeScreen)
 welcomeFrame.pack()
 CLabel(welcomeFrame, "Bienvenido a Energy Calc", 15).grid()
 CLabel(welcomeFrame, "¿Con cuántas cargas piensas trabajar?").grid(row=1)
-chargeCount = tk.StringVar()
-CEntry(welcomeFrame, chargeCount).grid(row = 1, column = 1)
+chargeCountStrVar = tk.StringVar()
+CEntry(welcomeFrame, chargeCountStrVar).grid(row = 1, column = 1)
 
 CLabel(welcomeFrame, "Distancia en y de la partícula desde el orígen (m)").grid(row=2)
-particleY = tk.StringVar()
+particleYStrVar = tk.StringVar()
 
 
 chargeFrames = []
 charges = []
 
+
 def confirmChargeCount(e = None):
     global chargeFrames, particleY, chargeCount
-    welcomeFrame.pack_forget()
-    particleY = int(particleY.get())
-    chargeCount = int(chargeCount.get())
+    try:
+        particleY = float(particleYStrVar.get())
+        if particleY < 0:
+            messagebox.showerror("Error", "Aún está en desarrollo las particulas debajo del eje x.")
+            return
+        
+        chargeCount = int(chargeCountStrVar.get())
+        if chargeCount > 99 or chargeCount < 1:
+            messagebox.showerror("Error", "Actualmente solo se permiten de 1 a 99 cargas dentro del campo.")
+            return
+    except:
+        messagebox.showerror("Error", "Un dato está mal ingresado. Verifique los datos e intente nuevamente.")
+        return
     for i in range(chargeCount):
         chargeFrames.append(ChargeFrame(welcomeScreen, i))
         charges.append(None)
+
+    welcomeFrame.pack_forget()
     chargeFrames[0].pack()
     
     
-CEntry(welcomeFrame, particleY, enterFun = confirmChargeCount).grid(row = 2, column = 1)
+CEntry(welcomeFrame, particleYStrVar, enterFun = confirmChargeCount).grid(row = 2, column = 1)
 
 CButton(welcomeFrame, "Continuar", confirmChargeCount).grid(row = 3, columnspan = 2)
 
@@ -93,10 +107,16 @@ class ChargeFrame(tk.Frame):
     def nextCharge(self, e = None):
         global chargeFrames, charges, totalEnergys
 
-        charges[self.index] = Charge(
-            charge = float(self.chargeStrVar.get()),
+        try:
+            charge = float(self.chargeStrVar.get())
+            if charge == 0:
+                messagebox.showwarning("Advertencia", "Si esa carga es 0, ¿para qué la pone? Cansón.")
             xDistance = float(self.xDistanceStrVar.get())
-        )
+        except:
+            messagebox.showerror("Error", "Un dato está mal ingresado. Verifique los datos e intente nuevamente")
+            return
+
+        charges[self.index] = Charge(charge = charge, xDistance = xDistance)
 
         self.pack_forget()
         if (self.index + 1) < len(chargeFrames):
@@ -158,9 +178,5 @@ def calculateTotalEnergy(charges: list) -> float:
 
     return k * acumCharges
 
-
-# Out total energy
-print("\n\n\nRESULTADOS:\nEnergía total que maneja la partícula: ", end="")
-print(totalEnergy)
 
 welcomeScreen.mainloop()
