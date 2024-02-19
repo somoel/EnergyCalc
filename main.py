@@ -5,8 +5,7 @@ import numpy
 """
 TODO:
     Graphic mode
-    Check correct data input
-
+    Value types for micro coulomb and centimeters
 """
 
 
@@ -35,12 +34,17 @@ while True:
         if (1 <= chargeCount <= 99):
             break
     except:
-        pass
+        print("[ERROR] Datos incorrectos")
 
 
 
 print("\nPARTÍCULA")
-particleY = float(input("Distancia en y de la partícula desde el origen (m) >>>"))
+while True:
+    try:
+        particleY = float(input("Distancia en y de la partícula desde el origen (m) >>>"))
+        break
+    except:
+        print("[ERROR] Datos incorrectos")
 
 
 class Charge:
@@ -48,7 +52,7 @@ class Charge:
     def __init__(self, charge: float, xDistance: float) -> None:
         self.charge = charge
         self.xDistance = xDistance
-        self.angle = dArcTan(particleY / abs(xDistance))
+        self.angle = dArcTan(particleY / abs(xDistance)) if xDistance != 0 else 0
         self.qUpRectangle = abs(self.charge) / (particleY**2 + self.xDistance**2)
         self.vectorParts = dCos(self.angle) + ((- dSin(self.angle)) if charge < 0 else dSin(self.angle))
 
@@ -56,9 +60,21 @@ class Charge:
 charges = []
 for i in range(chargeCount):
     print(f"\nESFERA #{i+1}")
+    while True:
+        try:
+            charge = float(input("Carga (+/- C) >>>"))
+            if (charge == 0):
+                print("[ADVERTENCIA] Si la partícula no tiene carga, pa que la pone, no sea cansón")
+            break
+        except:
+            print("[ERROR] Datos incorrectos")
 
-    charge = float(input("Carga (+/- C) >>>"))
-    xDistance = float(input("Distancia en x respecto a la partícula (m) >>>"))
+    while True:
+        try:
+            xDistance = float(input("Distancia en x respecto a la partícula (m) >>>"))
+            break
+        except:
+            print("[ERROR] Datos incorrectos")
 
     charges.append(Charge(
         charge = charge,
