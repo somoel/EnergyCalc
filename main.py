@@ -11,6 +11,7 @@ TODO:
         Separate files
         Check negative particles
         Scientific notation
+        Check entry data
         Clean and comment code
         Handle end of calculus
         Add keybinding to back button
