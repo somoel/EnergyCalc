@@ -13,8 +13,9 @@ TODO:
         Scientific notation
         Check entry data
         Clean and comment code
-        Handle end of calculus
         Add keybinding to back button
+        Enhance button from last charge
+        Enhance desing
 
 """
 
@@ -127,9 +128,13 @@ class ChargeFrame(tk.Frame):
             resultFrame.pack()
 
     def back(self):
-        global chargeFrames
+        global chargeFrames, charges, chargeCountStrVar, particleYStrVar
         self.pack_forget()
         if (self.index - 1) < 0:
+            charges = []
+            chargeFrames = []
+            chargeCountStrVar.set('')
+            particleYStrVar.set('')
             welcomeFrame.pack()
         else:
             chargeFrames[self.index - 1].pack()
@@ -140,6 +145,29 @@ CLabel(resultFrame, "Resultados", 15).grid()
 CLabel(resultFrame, "Campo electrico total:").grid(row=1)
 totalEnergy = tk.StringVar()
 tk.Label(resultFrame, textvariable=totalEnergy, font = (mediumFont, 13)).grid(row = 2)
+
+
+def closeApp():
+    welcomeScreen.destroy()
+
+def backToCharges():
+    global chargeFrames
+    resultFrame.pack_forget()
+    chargeFrames[-1].pack()
+
+def resetApp():
+    global charges, chargeFrames, chargeCountStrVar, particleYStrVar
+    charges = []
+    chargeFrames = []
+    chargeCountStrVar.set('')
+    particleYStrVar.set('')
+
+    resultFrame.pack_forget()
+    welcomeFrame.pack()
+
+CButton(resultFrame, "Cerrar", closeApp).grid(row = 3)
+CButton(resultFrame, "Volver", backToCharges).grid(row = 3, column = 1)
+CButton(resultFrame, "Reiniciar", resetApp).grid(row = 3, column = 2)
 
 
 # Constants
