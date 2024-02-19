@@ -13,7 +13,6 @@ TODO:
         Scientific notation
         Check entry data
         Clean and comment code
-        Add keybinding to back button
         Enhance desing
 """
 
@@ -44,6 +43,7 @@ class CButton(tk.Button):
 
 welcomeFrame = tk.Frame(welcomeScreen)
 welcomeFrame.pack()
+
 CLabel(welcomeFrame, "Bienvenido a Energy Calc", 15).grid()
 CLabel(welcomeFrame, "¿Con cuántas cargas piensas trabajar?").grid(row=1)
 chargeCountStrVar = tk.StringVar()
@@ -99,6 +99,7 @@ class ChargeFrame(tk.Frame):
         self.chargeStrVar = tk.StringVar()
         self.chargeEntry = CEntry(self, self.chargeStrVar)
         self.chargeEntry.grid(row = 1, column = 1)
+        self.chargeEntry.bind('<Alt-Left>', self.back)
 
         CLabel(self, "Distancia en x con respecto a la partícula (m)").grid(row = 2)
         
@@ -131,8 +132,9 @@ class ChargeFrame(tk.Frame):
         else:
             totalEnergy.set(calculateTotalEnergy(charges))
             resultFrame.pack()
+            resultFrame.focus()
 
-    def back(self):
+    def back(self, e = None):
         global chargeFrames, charges, chargeCountStrVar, particleYStrVar
         self.pack_forget()
         if (self.index - 1) < 0:
@@ -147,21 +149,22 @@ class ChargeFrame(tk.Frame):
 
         
 resultFrame = tk.Frame(welcomeScreen)
+
 CLabel(resultFrame, "Resultados", 15).grid()
 CLabel(resultFrame, "Campo electrico total:").grid(row=1)
 totalEnergy = tk.StringVar()
 tk.Label(resultFrame, textvariable=totalEnergy, font = (mediumFont, 13)).grid(row = 2)
 
 
-def closeApp():
+def closeApp(e = None):
     welcomeScreen.destroy()
 
-def backToCharges():
+def backToCharges(e = None):
     global chargeFrames
     resultFrame.pack_forget()
     chargeFrames[-1].pack()
 
-def resetApp():
+def resetApp(e = None):
     global charges, chargeFrames, chargeCountStrVar, particleYStrVar
     charges = []
     chargeFrames = []
@@ -170,6 +173,11 @@ def resetApp():
 
     resultFrame.pack_forget()
     welcomeFrame.pack()
+
+
+resultFrame.bind('r', resetApp)
+resultFrame.bind('v', backToCharges)
+resultFrame.bind('c', closeApp)
 
 CButton(resultFrame, "Cerrar", closeApp).grid(row = 3)
 CButton(resultFrame, "Volver", backToCharges).grid(row = 3, column = 1)
