@@ -5,7 +5,8 @@ import numpy
 """
 TODO:
     Graphic mode
-        Value types for micro coulomb and centimeters
+    Check correct data input
+
 """
 
 
