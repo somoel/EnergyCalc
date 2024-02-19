@@ -8,11 +8,12 @@ import tkinter as tk
 TODO:
     Graphic mode
         Separate files
-        Enter to next
         Check negative particles
         Scientific notation
         Back Button
         Check entry data
+        Clean and comment code
+        Handle end of calculus
 
 """
 
@@ -28,8 +29,10 @@ class CLabel(tk.Label):
         tk.Label.__init__(self, parent, text = text, font = (mediumFont, fontSize))
 
 class CEntry(tk.Entry):
-    def __init__(self, parent, stringVar, fontSize = 10):
+    def __init__(self, parent, stringVar, fontSize = 10, enterFun = None):
         tk.Entry.__init__(self, parent, textvariable = stringVar, font = (mediumFont, fontSize))
+        if enterFun != None:
+            self.bind('<Return>', enterFun)
 
 class CButton(tk.Button):
     def __init__(self, parent, text, command, fontSize = 10):
@@ -46,13 +49,12 @@ CEntry(welcomeFrame, chargeCount).grid(row = 1, column = 1)
 
 CLabel(welcomeFrame, "Distancia en y de la partícula desde el orígen (m)").grid(row=2)
 particleY = tk.StringVar()
-CEntry(welcomeFrame, particleY).grid(row = 2, column = 1)
 
 
 chargeFrames = []
 charges = []
 
-def confirmChargeCount():
+def confirmChargeCount(e):
     global chargeFrames, particleY, chargeCount
     welcomeFrame.pack_forget()
     particleY = int(particleY.get())
@@ -62,6 +64,8 @@ def confirmChargeCount():
         charges.append(None)
     chargeFrames[0].pack()
     
+    
+CEntry(welcomeFrame, particleY, enterFun = confirmChargeCount).grid(row = 2, column = 1)
 
 CButton(welcomeFrame, "Continuar", confirmChargeCount).grid(row = 3, columnspan = 2)
 
@@ -81,21 +85,21 @@ class ChargeFrame(tk.Frame):
         CLabel(self, "Distancia en x con respecto a la partícula (m)").grid(row = 2)
         
         self.xDistanceStrVar = tk.StringVar()
-        CEntry(self, self.xDistanceStrVar).grid(row = 2, column = 1)
+        CEntry(self, self.xDistanceStrVar, enterFun=self.nextCharge).grid(row = 2, column = 1)
 
-        CButton(self, "Siguiente", lambda:self.nextCharge(self, self.index)).grid(row = 3, rowspan= 2)
+        CButton(self, "Siguiente", self.nextCharge).grid(row = 3, rowspan= 2)
     
-    def nextCharge(self, e, actual_index):
-        global chargeFrames, charges, totalEnergy
+    def nextCharge(self, e = None):
+        global chargeFrames, charges, totalEnergys
 
-        charges[actual_index] = Charge(
+        charges[self.index] = Charge(
             charge = float(self.chargeStrVar.get()),
             xDistance = float(self.xDistanceStrVar.get())
         )
 
         self.pack_forget()
-        if (actual_index + 1) < len(chargeFrames):
-            chargeFrames[actual_index + 1].pack()
+        if (self.index + 1) < len(chargeFrames):
+            chargeFrames[self.index + 1].pack()
         else:
             totalEnergy.set(calculateTotalEnergy(charges))
             resultFrame.pack()
