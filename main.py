@@ -1,10 +1,12 @@
 import scipy.constants
 import math
+import numpy
 
 """
 TODO:
     Graphic mode
-    Solve angle automatically
+    Check correct data input
+    Use charge negative values instead of p/n
 
 """
 
@@ -21,6 +23,9 @@ def dSin (num):
 
 def dCos (num):
     return math.cos(math.radians(num))
+
+def dArcTan(num):
+    return numpy.rad2deg(numpy.arctan(num))
 
 # Input data
 
@@ -41,13 +46,13 @@ particleY = float(input("Distancia en y de la partícula desde el origen (m) >>>
 
 class Charge:
     global particleY
-    def __init__(self, charge: float, type: str, xDistance: float, angle: float) -> None:
+    def __init__(self, charge: float, type: str, xDistance: float) -> None:
         self.charge = charge
         self.type = type
         self.xDistance = xDistance
-        self.angle = angle
+        self.angle = dArcTan(particleY / abs(xDistance))
         self.qUpRectangle = self.charge / (particleY**2 + self.xDistance**2)
-        self.vectorParts = dCos(angle) + ((- dSin(angle)) if type == "n" else dSin(angle))
+        self.vectorParts = dCos(self.angle) + ((- dSin(self.angle)) if type == "n" else dSin(self.angle))
 
 
 charges = []
@@ -57,13 +62,11 @@ for i in range(chargeCount):
     charge = float(input("Carga (C) >>>"))
     type = input("Positiva o negativa (p/n) >>>")
     xDistance = float(input("Distancia en x respecto a la partícula (m) >>>"))
-    angle = float(input("Ángulo que forma el origen con la partícula (°) >>>"))
 
     charges.append(Charge(
         charge = charge,
         type = type,
-        xDistance = xDistance,
-        angle = angle
+        xDistance = xDistance
     ))
    
 
