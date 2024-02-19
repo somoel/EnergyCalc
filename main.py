@@ -6,7 +6,7 @@ import tkinter as tk
 from tkinter import messagebox
 
 """
-TODO:
+TODO: 
     Graphic mode
         Separate files
         Check negative particles
