@@ -9,12 +9,15 @@ from tkinter import messagebox
 TODO: 
     Graphic mode
         Separate files
-        Check negative particles
         Clean and comment code
         Enhance desing
         Add Java OOP
         Add microcoulombs and centimeters
         Show result info in scientific notation
+        Use zero
+        Add units
+        Show grahic
+        Get Angle
 """
 
 welcomeScreen = tk.Tk()
@@ -68,9 +71,6 @@ def confirmChargeCount(e = None):
             return
         
         particleY = float(particleYStrVar.get())
-        if particleY < 0:
-            messagebox.showerror("Error", "Aún está en desarrollo las particulas debajo del eje x.")
-            return
         
         expParticleY = int(expPYStrVar.get())
         
@@ -240,7 +240,7 @@ class Charge:
     def __init__(self, charge: float, xDistance: float) -> None:
         self.charge = charge
         self.xDistance = xDistance
-        self.angle = dArcTan(particleY / abs(xDistance)) if xDistance != 0 else 0
+        self.angle = dArcTan(abs(particleY) / abs(xDistance)) if xDistance != 0 else 0
         self.qUpRectangle = abs(self.charge) / (particleY**2 + self.xDistance**2)
         self.vectorParts = dCos(self.angle) + ((- dSin(self.angle)) if charge < 0 else dSin(self.angle))
 
