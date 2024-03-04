@@ -4,6 +4,7 @@ import numpy
 from tkextrafont import Font
 import tkinter as tk
 from tkinter import messagebox
+from tkinter import ttk
 
 """
 TODO:
@@ -12,7 +13,6 @@ TODO:
         Clean and comment code
         Enhance desing
         Add Java OOP
-        Add microcoulombs and centimeters
         Show result info in scientific notation
         Use zero
         Add units
@@ -43,6 +43,10 @@ class CButton(tk.Button):
     def __init__(self, parent, text, command, fontSize = 10):
         tk.Button.__init__(self, parent, text = text, font = (mediumFont, fontSize), command = command)
 
+class CComboBox(ttk.Combobox):
+    def  __init__(self, parent, *args, **kwargs):
+        ttk.Combobox.__init__(self, parent, font = (mediumFont, 10), *args, **kwargs)
+
 
 
 welcomeFrame = tk.Frame(welcomeScreen)
@@ -62,7 +66,7 @@ charges = []
 
 
 def confirmChargeCount(e = None):
-    global chargeFrames, particleY, chargeCount
+    global chargeFrames, particleY, chargeCount, yDUnitValues
     try:
         
         chargeCount = int(chargeCountStrVar.get())
@@ -73,8 +77,15 @@ def confirmChargeCount(e = None):
         particleY = float(particleYStrVar.get())
         
         expParticleY = int(expPYStrVar.get())
+
+        unitParticleY = yDUnitValues.index(yDUnitStrVar.get())
         
         particleY = particleY * 10**expParticleY
+        particleY = (particleY * 10**-2) if unitParticleY == 1 else particleY
+
+        print(unitParticleY)
+        print(particleY)
+        
     
     except:
         messagebox.showerror("Error", "Un dato está mal ingresado. Verifique los datos e intente nuevamente.")
@@ -94,7 +105,14 @@ CLabel(welcomeFrame, "x10^").grid(row = 2, column = 2)
 expPYStrVar = tk.StringVar()
 expPYStrVar.set("0")
 CEntry(welcomeFrame, expPYStrVar, enterFun = confirmChargeCount, width = 3).grid(row = 2, column = 3)
-CLabel(welcomeFrame, "m").grid(row = 2, column = 4)
+
+yDUnitStrVar = tk.StringVar()
+yDUnitValues = ["m", "cm"]
+yDUnitCombo = CComboBox(welcomeFrame, textvariable = yDUnitStrVar,
+            values = yDUnitValues, width = 2, state = "readonly")
+yDUnitCombo.grid(row = 2, column = 4)
+yDUnitCombo.set(yDUnitValues[0])
+
 
 
 CButton(welcomeFrame, "Continuar", confirmChargeCount).grid(row = 3, columnspan = 2)
@@ -119,8 +137,15 @@ class ChargeFrame(tk.Frame):
         self.expChargeStrVar = tk.StringVar()
         self.expChargeStrVar.set("0")
         CEntry(self, self.expChargeStrVar, width = 3).grid(row = 1, column = 3)
-        CLabel(self, "C").grid(row = 1, column = 4)
-        
+
+        self.chargeUnitStrVar = tk.StringVar()
+        self.chargeUnitValues = ["C", "μC"]
+        self.chargeUnitCombo = CComboBox(self, textvariable = self.chargeUnitStrVar,
+                   values = self.chargeUnitValues, width = 2, state = "readonly")
+        self.chargeUnitCombo.grid(row = 1, column = 4)
+        self.chargeUnitCombo.set(self.chargeUnitValues[0])
+
+
 
         CLabel(self, "Distancia en x con respecto a la partícula").grid(row = 2)
         
@@ -131,7 +156,15 @@ class ChargeFrame(tk.Frame):
         self.xDChargeStrVar = tk.StringVar()
         self.xDChargeStrVar.set("0")
         CEntry(self, self.xDChargeStrVar, width = 3, enterFun=self.nextCharge).grid(row = 2, column = 3)
-        CLabel(self, "m").grid(row = 2, column = 4)
+
+        self.xDUnitStrVar = tk.StringVar()
+        self.xDUnitValues = ["m", "cm"]
+        self.xDUnitCombo = CComboBox(self, textvariable = self.xDUnitStrVar,
+                   values = self.xDUnitValues, width = 2, state = "readonly")
+        self.xDUnitCombo.grid(row = 2, column = 4)
+        self.xDUnitCombo.set(self.xDUnitValues[0])
+
+
 
         CButton(self, "Volver", self.back).grid(row = 3, column = 0)
 
@@ -148,9 +181,15 @@ class ChargeFrame(tk.Frame):
             xDistance = float(self.xDistanceStrVar.get())
             expCharge = int(self.expChargeStrVar.get())
             expXDistance = int(self.xDChargeStrVar.get())
+            unitCharge = self.chargeUnitValues.index(self.chargeUnitStrVar.get())
+            unitXDistance = self.xDUnitValues.index(self.xDUnitStrVar.get())
+
 
             charge = charge * 10**expCharge
-            xDistance = xDistance  * 10**expXDistance
+            charge = (charge * 10**-6) if unitCharge == 1 else charge
+            xDistance = xDistance * 10**expXDistance
+            xDistance = (xDistance * 10**-2) if unitXDistance == 1 else xDistance
+
         except:
             messagebox.showerror("Error", "Un dato está mal ingresado. Verifique los datos e intente nuevamente")
             return
