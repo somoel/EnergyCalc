@@ -13,11 +13,11 @@ TODO:
         Clean and comment code
         Enhance desing
         Add Java OOP
-        Show result info in scientific notation
         Use zero
         Add units
         Show grahic
         Get Angle
+        Use correct result
 """
 
 welcomeScreen = tk.Tk()
@@ -201,7 +201,7 @@ class ChargeFrame(tk.Frame):
             chargeFrames[self.index + 1].pack()
             chargeFrames[self.index + 1].chargeEntry.focus()
         else:
-            totalEnergy.set(calculateTotalEnergy(charges))
+            totalEnergy.set(str(calculateTotalEnergy(charges)) + " C")
             resultFrame.pack()
             resultFrame.focus()
 
@@ -284,6 +284,16 @@ class Charge:
         self.vectorParts = dCos(self.angle) + ((- dSin(self.angle)) if charge < 0 else dSin(self.angle))
 
 
+def format_scientific_notation(number, precision=10):
+    """
+    Formats a decimal number in scientific notation with "x10^" instead of "E+".
+    :param number: The decimal number to format.
+    :param precision: Number of decimal places for the coefficient (default is 2).
+    :return: A string representing the number in scientific notation.
+    """
+    coefficient, exponent = f"{number:.{precision}E}".split("E")
+    return f"{coefficient} x10^{int(exponent)}"
+
 
 def calculateTotalEnergy(charges: list) -> float:
     global k
@@ -292,7 +302,7 @@ def calculateTotalEnergy(charges: list) -> float:
     for i in range(len(charges)):
         acumCharges += charges[i].qUpRectangle * charges[i].vectorParts
 
-    return k * acumCharges
+    return format_scientific_notation(k * acumCharges)
 
 
 welcomeScreen.mainloop()
