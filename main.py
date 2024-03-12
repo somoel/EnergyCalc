@@ -7,7 +7,7 @@ from tkinter import messagebox
 from tkinter import ttk
 
 """
-TODO:
+TODO: 
     Graphic mode
         Separate files
         Clean and comment code
