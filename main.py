@@ -13,11 +13,9 @@ TODO:
         Clean and comment code
         Enhance desing
         Add Java OOP
-        Use zero
-        Add units
         Show grahic
         Get Angle
-        Use correct result
+        Use correct result ----------------
 """
 
 welcomeScreen = tk.Tk()
