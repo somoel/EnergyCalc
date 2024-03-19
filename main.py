@@ -15,7 +15,7 @@ TODO:
         Add Java OOP
         Show grahic
         Get Angle
-        Use correct result ----------------
+        Translate all 2 english
 """
 
 welcomeScreen = tk.Tk()
@@ -199,7 +199,10 @@ class ChargeFrame(tk.Frame):
             chargeFrames[self.index + 1].pack()
             chargeFrames[self.index + 1].chargeEntry.focus()
         else:
-            totalEnergy.set(str(calculateTotalEnergy(charges)) + " C")
+            totalEnergyComponents = calculateTotalEnergy(charges)
+            totalXEnergy.set(f"{totalEnergyComponents[0]} N/C (x direction) {' '*15}")
+            totalYEnergy.set(f"{totalEnergyComponents[1]} N/C (y direction)")
+            totalMagnitudeEnergy.set(f"Magnitude: {totalEnergyComponents[2]} N/C")
             resultFrame.pack()
             resultFrame.focus()
 
@@ -221,9 +224,13 @@ class ChargeFrame(tk.Frame):
 resultFrame = tk.Frame(welcomeScreen)
 
 CLabel(resultFrame, "Resultados", 15).grid()
-CLabel(resultFrame, "Campo electrico total:").grid(row=1)
-totalEnergy = tk.StringVar()
-tk.Label(resultFrame, textvariable=totalEnergy, font = (mediumFont, 13)).grid(row = 2)
+CLabel(resultFrame, "Campo electrico:").grid(row=1)
+totalXEnergy = tk.StringVar()
+tk.Label(resultFrame, textvariable=totalXEnergy, font = (mediumFont, 13)).grid(row = 2)
+totalYEnergy = tk.StringVar()
+tk.Label(resultFrame, textvariable=totalYEnergy, font = (mediumFont, 13)).grid(row = 2, column = 1)
+totalMagnitudeEnergy = tk.StringVar()
+tk.Label(resultFrame, textvariable=totalMagnitudeEnergy, font = (mediumFont, 13)).grid(row = 3)
 
 
 def closeApp(e = None):
@@ -250,9 +257,9 @@ resultFrame.bind('r', resetApp)
 resultFrame.bind('v', backToCharges)
 resultFrame.bind('c', closeApp)
 
-CButton(resultFrame, "Cerrar", closeApp).grid(row = 3)
-CButton(resultFrame, "Volver", backToCharges).grid(row = 3, column = 1)
-CButton(resultFrame, "Reiniciar", resetApp).grid(row = 3, column = 2)
+CButton(resultFrame, "Cerrar", closeApp).grid(row = 4)
+CButton(resultFrame, "Volver", backToCharges).grid(row = 4, column = 1)
+CButton(resultFrame, "Reiniciar", resetApp).grid(row = 4, column = 2)
 
 
 # Constants
@@ -279,10 +286,11 @@ class Charge:
         self.xDistance = xDistance
         self.angle = dArcTan(abs(particleY) / abs(xDistance)) if xDistance != 0 else 0
         self.qUpRectangle = abs(self.charge) / (particleY**2 + self.xDistance**2)
-        self.vectorParts = dCos(self.angle) + ((- dSin(self.angle)) if charge < 0 else dSin(self.angle))
+        self.xComponent = dCos(self.angle) 
+        self.yComponent = (- dSin(self.angle)) if charge < 0 else dSin(self.angle)
 
 
-def format_scientific_notation(number, precision=10):
+def format_scientific_notation(number, precision=2):
     """
     Formats a decimal number in scientific notation with "x10^" instead of "E+".
     :param number: The decimal number to format.
@@ -296,11 +304,20 @@ def format_scientific_notation(number, precision=10):
 def calculateTotalEnergy(charges: list) -> float:
     global k
 
-    acumCharges = 0
+    acumXCharges = 0
+    acumYCharges = 0
     for i in range(len(charges)):
-        acumCharges += charges[i].qUpRectangle * charges[i].vectorParts
+        acumXCharges += charges[i].qUpRectangle * charges[i].xComponent
+        acumYCharges += charges[i].qUpRectangle * charges[i].yComponent
+        
+    acumXCharges *= k
+    acumYCharges *= k
+    
+    magnitudeCharge = math.sqrt((acumXCharges ** 2) + (acumYCharges ** 2))
 
-    return format_scientific_notation(k * acumCharges)
+    return (format_scientific_notation(acumXCharges),
+            format_scientific_notation(acumYCharges),
+            format_scientific_notation(magnitudeCharge))
 
 
 welcomeScreen.mainloop()
